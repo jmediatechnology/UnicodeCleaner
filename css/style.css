@@ -1,0 +1,163 @@
+
+/*  https://www.w3schools.com/w3css/4/w3.css
+    https://www.w3schools.com/lib/w3-colors-flat.css
+*/
+*, ::before, ::after {
+    box-sizing: inherit;
+}
+html, body {
+    font-family: Verdana,sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+}
+body { margin: 0;}
+.w3-container,.w3-panel {padding: 0.01em 16px;}
+.w3-flat-belize-hole {color:#fff;background-color:#2980b9}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: "Segoe UI",Arial,sans-serif;
+    font-weight: 400;
+    margin: 10px 0;
+}
+
+/* datatables */
+table#table_id {
+    font-size: 13px;
+    text-align: center;
+}
+.log_concept_todo, .log_definitief_todo, .label_todo {
+    background-color: WhiteSmoke;
+}
+.companyName, .orderStatus {
+    text-align: left;
+}
+.total_gtins {
+    text-align: right;
+}
+
+/* @link https://codepen.io/giana/pen/BZaGyP */
+button {
+  background: white;
+  border: 2px solid;
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.2;
+  margin: 0.5em;
+  padding: 1em 2em;
+}
+button:hover {  
+/*  border-color: PaleTurquoise;*/
+  background-color: LightCyan;
+  transition: 0.25s;
+  cursor: pointer;
+}
+button.filteron{  
+  border-color: LightSeaGreen;
+  background-color: LightCyan;
+}
+
+/* BEGIN NAVIGATION BAR */
+h2 + ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #72B0D9;
+}
+
+h2 + ul li {
+    float: left;
+}
+
+h2 + ul li.active {
+    background-color: #4995C7;
+}
+
+h2 + ul li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+h2 + ul li a:hover {
+    background-color: #096EB0;
+}
+
+ul.steps li a {
+    color: #c4dbff;
+}
+
+
+/* END NAVIGATION BAR */
+
+/* ALIGN input forms  @link: https://stackoverflow.com/questions/4309950/how-to-align-input-forms-in-html/23741073 */
+form  { display: table;      }
+p     { display: table-row;  }
+input { display: table-cell; }
+/* END ALIGN input form */
+
+label {
+    display: block;
+    text-align: left;
+}
+
+div#loader {
+    background-image: url("ajax-loader.gif");
+    background-repeat:no-repeat;
+    width: 500px;
+    height: 200px;
+    margin-left: 20px;
+    padding-top: 90px;
+    padding-left: 30px;
+    display: none;
+}
+
+p#result {
+    margin-left: 20px;
+    display: none;
+}
+
+p#result table {
+    font-size: 12px;
+    table-layout: fixed;
+}
+
+p#result table thead tr{
+    background-color: #3c8bbf;
+    color: white;
+}
+p#result table tbody tr:nth-child(even){
+    background-color: #fff;
+}
+p#result table tbody tr:nth-child(odd) {
+    background-color: #9dc5df;
+}
+
+
+button#copy_all_btn {
+    display: none;
+}
+
+p#pagination{
+    display: block;
+    text-align: center;
+}
+
+div.paginationjs {
+    display: inline-block;
+}
+
+#table-main {
+    padding: 0.01em 16px;
+    font-size: 0.8em;
+}
+
+#table-main thead {
+    background-color: #4995c7;
+    color: white;
+}
+#table-main tbody tr:nth-child(even) {
+    background-color: #cad9e3;
+}
