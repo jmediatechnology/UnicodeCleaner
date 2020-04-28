@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+    <title>UnicodeCleaner: Select table & column</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8"> 
+    
+    <link rel="stylesheet" href="./css/style.css">
+    
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+
+    <script src="js/select_table_column.js"></script>
+    
+    <body>
+        <div class="w3-container w3-flat-belize-hole">
+            <h2>UnicodeCleaner - Select table & column</h2>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="setup_database_connection.html">DB Connection</a></li>
+                <li class="active"><a href="select_table_column.html">Select Table & Column</a></li>
+                <li><a href="select_encoding.html">Select Encoding</a></li>
+            </ul>
+            <p>Please select the table, identification column and target column you wish to clean.</p>
+            <p>&nbsp;</p>         
+            
+            <table id="config_table">
+                <tr><td>Table: </td><td><select id="target_table"><option></option></select></td></tr>
+                <tr><td>Identification column: </td><td><select id="target_column_id"><option></option></select></td></tr>
+                <tr><td>Target column: </td><td><select id="target_column_target"><option></option></select></td></tr>
+            </table>
+            
+            <p>&nbsp;</p> 
+            <p id="sys-message-target-table"></p>
+            <p id="sys-message-target-column-id"></p>
+            <p id="sys-message-target-column-target"></p>
+            
+            <p>&nbsp;</p>  
+        </div>
+        <div id="loader"></div>
+        <p id="result"></p>
+        <p id="pagination"></p>
+        <div id="datatable">
+            <table id="table-main">
+                <thead></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </body>
+</html> 
+

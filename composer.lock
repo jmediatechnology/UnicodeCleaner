@@ -1,0 +1,61 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "0ca52b8fea18f8943ed26cbc17768629",
+    "packages": [
+        {
+            "name": "pear/config_lite",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/pear/Config_Lite.git",
+                "reference": "d30be1729a56fd6691b90d99033a32ce01192950"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/pear/Config_Lite/zipball/d30be1729a56fd6691b90d99033a32ce01192950",
+                "reference": "d30be1729a56fd6691b90d99033a32ce01192950",
+                "shasum": ""
+            },
+            "require-dev": {
+                "phpunit/phpunit": "*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "": "./"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "include-path": [
+                "./"
+            ],
+            "license": [
+                "PHP-3.0"
+            ],
+            "authors": [
+                {
+                    "name": "Patrick C. Engel",
+                    "email": "pce@php.net",
+                    "role": "Lead"
+                }
+            ],
+            "description": "Lightweight package for ini style configuration/settings text files",
+            "homepage": "http://pear.php.net/package/Config_Lite",
+            "time": "2017-07-04T10:28:32+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": {
+        "pear/config_lite": 20
+    },
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": []
+}

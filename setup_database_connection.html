@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+    <title>UnicodeCleaner: Set-up database connection</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8"> 
+    
+    <link rel="stylesheet" href="./css/style.css">
+    
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="js/setup_database_connection.js"></script>
+    
+    <body>
+        <div class="w3-container w3-flat-belize-hole">
+            <h2>UnicodeCleaner - Set-up database connection</h2>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li class="active"><a href="setup_database_connection.html">DB Connection</a></li>
+                <li><a href="select_table_column.html">Select Table & Column</a></li>
+                <li><a href="select_encoding.html">Select Encoding</a></li>
+            </ul>
+            <p>Grant access to your database. Your logon information will be stored on YOUR webserver. </p>
+            
+            <p>&nbsp;</p>
+            
+            <form id="form-db-connection" enctype="multipart/form-data">
+                
+                <label for="host">Host: </label>
+                <input type="text" name="host" id="host">
+                
+                <label for="username">Username: </label>
+                <input type="text" name="username" id="username">
+                
+                <label for="password">Password: </label>
+                <input type="password" name="password" id="password">
+                
+                <label for="db">Database: </label>
+                <input type="text" name="db" id="db">
+                
+                <br><br>
+                <button type="submit" value="Connect" id="submit">Connect</button>
+            </form>
+             
+            <p>&nbsp;</p>
+            <p id="sys-message"></p>
+            <p>&nbsp;</p>
+            
+        </div>
+        <div id="loader"></div>
+        <p id="result"></p>
+        <p id="pagination"></p>
+        <div id="datatable">
+            <table id="table_id" class="display">
+                
+            </table>
+        </div>
+    </body>
+</html> 
+

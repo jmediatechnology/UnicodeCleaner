@@ -1,0 +1,5 @@
+{
+    "require": {
+        "pear/config_lite": "dev-master"
+    }
+}
