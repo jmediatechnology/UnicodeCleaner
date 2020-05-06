@@ -6,9 +6,10 @@ $(document).ready(function () {
     $('body').on('click', 'button#reinterpret', function (e) {
 
         $.ajax({
-            url: "ajax/reinterpret.php",
+            url: "ajax/reinterpret_iconv.php",
             type: "POST",
             data: {
+                encoding_for_db_connection: $('#encoding_for_db_connection').val().trim(),
                 encoding_from: $('#encoding_from').val().trim(),
                 encoding_to: $('#encoding_to').val().trim(),
             },

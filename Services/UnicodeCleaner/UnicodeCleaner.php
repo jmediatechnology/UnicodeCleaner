@@ -40,19 +40,35 @@ class UnicodeCleaner {
         return $this->field;
     }
 
-    public function fetchGarbledFieldValues() {
+    public function fetchGarbledFieldValues($translation_table = array()) {
         
         // -- t1.". $this->field  ." LIKE '%Ã%' COLLATE utf8_bin  OR t1.". $this->field ." LIKE '%Ã%' COLLATE utf8_bin 
-        // t1.". $this->field  ." LIKE '%Ã%' OR t1.". $this->field ." LIKE '%Ã%' 
         $sql = "
             SELECT
                     t1.". $this->fieldPK .",
                     t1.". $this->field ."
             FROM ". $this->table ." t1
-            WHERE
-                true
-            LIMIT 1000
-            ";
+            WHERE 
+                true 
+        ";
+        
+        if($translation_table){
+            $i = 0;
+            foreach(array_keys($translation_table) as $misinterpretedWord){
+                
+                $misinterpretedWord = trim($misinterpretedWord, "\x22\x27"); // hex for "'
+                
+                if($i === 0){
+                    $sql .= " AND ";
+                } else {
+                    $sql .= " OR ";
+                }
+                
+                $sql .=  "t1.". $this->field  ." LIKE '%". $misinterpretedWord ."%' ";
+                
+                $i++;
+            }
+        }
 
         $statement = $this->db->prepare($sql);        
         if ($statement instanceof \mysqli_stmt === false) {
@@ -70,14 +86,26 @@ class UnicodeCleaner {
         return $entities;
     }
 
+    /**
+     * Manual translation of misinterpretations from UTF-8 to ISO-8859-1.
+     * 
+     * @param string$str
+     * @return string
+     */
     public function translateMisinterpretations($str) {
 
         $needles = array(
             'â‚¬','â€š','Æ’','â€ž','â€¦','â€¡','Ë†','â€°','Å','â€¹','Å’','Å½',
-            'â€˜','â€™','â€œ','â€¢','â€“','â€”','Ëœ','â„¢','Å¡','â€º','Å“',
-            'Å¾','Å¸','Â','Â¡','Â¢','Â£','Â¤','Â¥','Â¦','Â§','Â¨','Â©','Âª','Â«',
+            'â€˜','â€™','â€œ','â€¢','â€“','â€”','Ëœ','â„¢','Å¡','â€º',
+            'Å“',
+            
+            'Å¾','Å¸',
+            
+            'Â','Â¡','Â¢','Â£','Â¤','Â¥','Â¦','Â§','Â¨','Â©','Âª','Â«',
             'Â¬','Â­','Â®','Â¯', 'Â°','Â±','Â²','Â³','Â´','Âµ', 'Â¶','Â·','Â¸','Â¹',
-            'Âº','Â»','Â¼','Â½','Â¾','Â¿','Ã€','Ã‚','Ãƒ','Ã„','Ã…','Ã†','Ã‡',
+            'Âº','Â»','Â¼','Â½','Â¾','Â¿',
+            
+            'Ã€','Ã‚','Ãƒ','Ã„','Ã…','Ã†','Ã‡',
             'Ãˆ','Ã‰','Ã‹','ÃŽ','Ã‘','Ã’','Ã“','Ã”','Ã•','Ã–',
             'Ã—','Ã˜','Ã™','Ã›','Ãž','ÃŸ','Ã¡','Ã¢','Ã£','Ã¤',
             'Ã¥','Ã¦','Ã§','Ã¨','Ã©','Ãª','Ã«','Ã¬','Ã­','Ã®','Ã¯','Ã°','Ã±','Ã²',
@@ -85,9 +113,15 @@ class UnicodeCleaner {
         );
         $replace = array(
             '€','‚','ƒ','„','…','‡','ˆ','‰','Š','‹','Œ','Ž','‘','’','“',
-            '•','–','—','˜','™','š','›','œ','ž','Ÿ','','¡','¢','£','¤','¥','¦','§',
-            '¨','©','ª','«','¬','­','®','¯','°','±','²','³','´','µ','¶','·','¸','¹',
-            'º','»','¼','½','¾','¿','À','Â','Ã','Ä','Å','Æ','Ç','È','É','Ë',
+            '•','–','—','˜','™','š','›','œ','ž','Ÿ','',
+            
+            '¡','¢','£','¤','¥','¦','§',
+            '¨','©','ª','«','¬','­','®','¯','°',
+            
+            '±','²','³','´','µ','¶','·','¸','¹',
+            'º','»','¼','½','¾','¿',
+            
+            'À','Â','Ã','Ä','Å','Æ','Ç','È','É','Ë',
             'Î','Ñ','Ò','Ó','Ô','Õ','Ö','×','Ø','Ù','Û',
             'Þ','ß','á','â','ã','ä','å','æ','ç','è','é','ê','ë','ì','í','î','ï',
             'ð','ñ','ò','ó','ô','õ','ö','÷','ø','ù','ú','û','ü','ý','þ','ÿ'
@@ -102,51 +136,14 @@ class UnicodeCleaner {
         return $str;
     }
 
-    public function translateMisinterpretationsCustom($str){
-        $needles = array(
-//            'MAÃS',
-//            'MELKPROTEÃNEN',
-//            'MELKPROTEÃNE',
-//            'weiÃ',
-            'Ãpices',
-            'BÃŠTA',
-            ' Ã ',
-            ' Ã ',
-            'ROSÃ?-',
-//            'CAROTÉNOÃDES DORIGINE',
-//            'D?A',
-//            'DÃ',
-//            'pinda?s',
-//            'â‚¬',
-//            'â?¬',
-//            'â€¢',
-//            'â€',
-//            'â„®',
-        );
-        $replace = array(
-//            'MAÏS',
-//            'MELKPROTEÏNEN',
-//            'MELKPROTEÏNE',
-//            'weiß',
-            'épices',
-            'BÊTA',
-            ' à ',
-            ' à ',
-            'ROSÉ-',
-//            "caroténoïdes d'origine",
-//            "D'A",
-//            "D'A",
-//            "pinda’s",
-//            "€",
-//            "€",
-//            "•",
-//            "”",
-//            "™®",
-        );
-
-        foreach($needles as $k => $needle){
-            if(strpos($str,$needle) !== FALSE){
-                $str = str_replace($needles[$k], $replace[$k], $str);
+    public function translateByTranslationTable($translation_table, $str){
+        
+        foreach($translation_table as $misinterpretedWord => $replace){
+            
+            $misinterpretedWord = trim($misinterpretedWord, "\x22\x27"); // hex for "'
+                        
+            if(strpos($str,$misinterpretedWord) !== FALSE){
+                $str = str_replace($misinterpretedWord, $replace, $str);
             }
         }
 

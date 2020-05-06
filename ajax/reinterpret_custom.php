@@ -76,10 +76,12 @@ use \Services\UnicodeCleaner\UnicodeCleaner;
 //==========================================================================================================================
 
 define('FILENAME', 'config.ini');
+define('FILENAME_TRANSLATION_TABLE', 'translation_table.ini');
 define('SECTION_DB', 'database');
 define('SECTION_TARGET', 'target');
 
 define('OUTPUT_DATA', 'data');
+define('OUTPUT_ERROR', 'Error in displaying data');
 
 //==========================================================================================================================
 // Instantiate dependencies
@@ -120,6 +122,12 @@ try {
     if($mysqli_connect_error){
         throw new Exception($mysqli_connect_error);
     }
+    $mysqli->set_charset($_POST['encoding_for_db_connection']);
+    
+    $translation_table = parse_ini_file(FILENAME_TRANSLATION_TABLE, true);
+    if(!$translation_table){
+        throw new Exception('Translation table is empty. ');
+    }
     
 } catch (Exception $exc) {
     header($_SERVER["SERVER_PROTOCOL"]." 422 Unprocessable Entity"); 
@@ -138,7 +146,7 @@ try {
     $unicodeCleaner->setTable($ini_array[SECTION_TARGET]['target_table']);
     $unicodeCleaner->setFieldPK($ini_array[SECTION_TARGET]['target_column_id']);
     $unicodeCleaner->setField($ini_array[SECTION_TARGET]['target_column_target']);
-    $garbledFieldValues = $unicodeCleaner->fetchGarbledFieldValues();
+    $garbledFieldValues = $unicodeCleaner->fetchGarbledFieldValues($translation_table);
 } catch (Exception $ex) {
     header($_SERVER["SERVER_PROTOCOL"]." 422 Unprocessable Entity"); 
     header('Content-Type: application/json');
@@ -163,14 +171,8 @@ foreach ($garbledFieldValues as $id => $field) {
 
     $output[OUTPUT_DATA][$id] = array();
     
-    //$hasGarbledChars = hasGarbledChars($field);
-    try {
-        $convertedStr = iconv($_POST['encoding_from'], $_POST['encoding_to'], $field);
-        //$convertedStr = iconv('UTF-8', 'ISO-8859-1', $field);
-        //$convertedStr = iconv('UTF-8', 'WINDOWS-1252', $field);
-        //$convertedStr = iconv('UTF-8', 'UTF-8', $field);
-        //$convertedStr = $unicodeCleaner->translateMisinterpretations($field);
-        //$convertedStr = $unicodeCleaner->translateMisinterpretationsCustom($field);
+    try {       
+        $convertedStr = $unicodeCleaner->translateByTranslationTable($translation_table, $field);
     } catch (Exception $ex) {
         $output[OUTPUT_DATA][$id]['error'] = $ex->getMessage();
         $amountOfIgnoredCells++;
@@ -196,7 +198,7 @@ foreach ($garbledFieldValues as $id => $field) {
 
 header('Content-Type: application/json');
 
-$message = 'Converting from ' . $_POST['encoding_from'] . 'to ' . $_POST['encoding_to'] . '<br>';
+$message = 'Converting from ' . $_POST['encoding_from'] . ' to ' . $_POST['encoding_to'] . '<br>';
 $messageAmountOfConvertedCells = 'Amount of converted cells: ' . $amountOfConvertedCells . ' cells. <br>';
 $messageAmountOfIgnoredCells = 'Amount of ignored cells: ' . $amountOfIgnoredCells . ' cells. <br>';
 
@@ -209,39 +211,33 @@ switch (json_last_error()) {
             $message = $outputJSON;
         break;
         case JSON_ERROR_DEPTH:
-            $message = $messageAmountOfConvertedCells . $messageAmountOfIgnoredCells . '<br>OUTPUT ERROR - Maximum stack depth exceeded';
             $output = array();
-            $output['message'] = $message;
+            $output['message'] = $messageAmountOfConvertedCells . $messageAmountOfIgnoredCells . '<br> '. OUTPUT_ERROR . ': Maximum stack depth exceeded';
             $message = json_encode($output);
         break;
         case JSON_ERROR_STATE_MISMATCH:
-            $message = $messageAmountOfConvertedCells . $messageAmountOfIgnoredCells . '<br>OUTPUT ERROR - Underflow or the modes mismatch';
             $output = array();
-            $output['message'] = $message;
+            $output['message'] = $messageAmountOfConvertedCells . $messageAmountOfIgnoredCells . '<br> '. OUTPUT_ERROR . ': Underflow or the modes mismatch';
             $message = json_encode($output);
         break;
         case JSON_ERROR_CTRL_CHAR:
-            $message = $messageAmountOfConvertedCells . $messageAmountOfIgnoredCells . '<br>OUTPUT ERROR - Unexpected control character found';
             $output = array();
-            $output['message'] = $message;
+            $output['message'] = $messageAmountOfConvertedCells . $messageAmountOfIgnoredCells . '<br> '. OUTPUT_ERROR . ': Unexpected control character found';
             $message = json_encode($output);
         break;
         case JSON_ERROR_SYNTAX:
-            $message = $messageAmountOfConvertedCells . $messageAmountOfIgnoredCells . '<br>OUTPUT ERROR - Syntax error, malformed JSON';
             $output = array();
-            $output['message'] = $message;
+            $output['message'] = $messageAmountOfConvertedCells . $messageAmountOfIgnoredCells . '<br> '. OUTPUT_ERROR . ': Syntax error, malformed JSON';
             $message = json_encode($output);
         break;
         case JSON_ERROR_UTF8:
-            $message = $messageAmountOfConvertedCells . $messageAmountOfIgnoredCells . '<br>OUTPUT ERROR - Malformed UTF-8 characters, possibly incorrectly encoded';
             $output = array();
-            $output['message'] = $message;
+            $output['message'] = $messageAmountOfConvertedCells . $messageAmountOfIgnoredCells . '<br> '. OUTPUT_ERROR . ': Malformed UTF-8 characters, possibly incorrectly encoded';
             $message = json_encode($output);
         break;
         default:
-            $message = $messageAmountOfConvertedCells . $messageAmountOfIgnoredCells . '<br>OUTPUT ERROR - Unknown error';
             $output = array();
-            $output['message'] = $message;
+            $output['message'] = $messageAmountOfConvertedCells . $messageAmountOfIgnoredCells . '<br> '. OUTPUT_ERROR . ': Unknown error';
             $message = json_encode($output);
         break;
     }
@@ -264,30 +260,4 @@ function isLatin($str) {
 
 function isUTF8($str) {
     return mb_check_encoding($str, 'UTF-8');
-}
-
-function hasGarbledChars($str) {
-
-    // @link: https://www.i18nqa.com/debug/utf8-debug.html
-    $misinterpretedChars = array(
-        'â‚¬','â€š','Æ’','â€ž','â€¦','â€','â€¡','Ë†','â€°','Å','â€¹','Å’','Å½',
-        'â€˜','â€™','â€œ','â€','â€¢','â€“','â€”','Ëœ','â„¢','Å¡','â€º','Å“',
-        'Å¾','Å¸','Â','Â¡','Â¢','Â£','Â¤','Â¥','Â¦','Â§','Â¨','Â©','Âª','Â«',
-        'Â¬','Â­','Â®','Â¯', 'Â°','Â±','Â²','Â³','Â´','Âµ', 'Â¶','Â·','Â¸','Â¹',
-        'Âº','Â»','Â¼','Â½','Â¾','Â¿','Ã€','Ã','Ã‚','Ãƒ','Ã„','Ã…','Ã†','Ã‡',
-        'Ãˆ','Ã‰','ÃŠ','Ã‹','ÃŒ','Ã','ÃŽ','Ã','Ã','Ã‘','Ã’','Ã“','Ã”','Ã•','Ã–',
-        'Ã—','Ã˜','Ã™','Ãš','Ã›','Ãœ','Ã','Ãž','ÃŸ','Ã','Ã¡','Ã¢','Ã£','Ã¤','Ã¥',
-        'Ã¦','Ã§','Ã¨','Ã©','Ãª','Ã«','Ã¬','Ã­','Ã®','Ã¯','Ã°','Ã±','Ã²','Ã³',
-        'Ã´','Ãµ','Ã¶','Ã·','Ã¸','Ã¹','Ãº','Ã»','Ã¼','Ã½','Ã¾','Ã¿',
-
-        'â?¬','â„®','â€',
-    );
-
-    foreach($misinterpretedChars as $misinterpretated){
-        if(strpos($str,$misinterpretated) !== FALSE){
-            return true;
-        }
-    }
-
-    return false;
 }

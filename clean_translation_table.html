@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+    <title>UnicodeCleaner: Clean by Translation Table</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8"> 
+    
+    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+        
+    
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+      
+    <script src="js/clean_translation_table.js"></script>
+    
+    <body>
+        <div class="w3-container w3-flat-belize-hole">
+            <h2>UnicodeCleaner - Clean by Translation Table</h2>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="setup_database_connection.html">DB Connection</a></li>
+                <li><a href="select_table_column.html">Select Table & Column</a></li>
+                <li><a href="clean_iconv.html">Clean by Iconv</a></li>
+                <li class="active"><a href="clean_translation_table.html">Clean by Translation Table</a></li>
+            </ul>
+            <p>Some misinterpreted characters starting with Ã, Ă or Â can not be cleaned by Iconv. <br>
+               However, it's possible to translate the misinterpreted characters by a manually set translation table. 
+            </p>
+            <p>&nbsp;</p>         
+            
+            <button id="translation_table_toggle_dialogbox_button">Translation table</button>
+            
+            <div id="dialog" title="Translation Table">
+                <textarea id="translation_table_textarea"></textarea>
+                <br>
+                <button id="translation_table_save_button">Save</button>
+            </div>
+            
+            <table id="config_table">
+                <tr><td>Database connection encoding: </td>
+                    <td>
+                        <select id="encoding_for_db_connection" name="encoding_for_db_connection">
+                            <option value="utf8" selected="selected">UTF-8</option>
+                            <option value="utf16">UTF-16</option>
+                            <option value="latin1">ISO-8859-1</option>
+                            <option value="windows-1252">WINDOWS-1252</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr><td>From encoding: </td>
+                    <td>
+                        <select id="encoding_from" name="encoding_from">
+                            <option value="UTF-8" selected="selected">UTF-8</option>
+                            <option value="ISO-8859-1">ISO-8859-1</option>
+                            <option value="WINDOWS-1252">WINDOWS-1252</option>
+                            <option value="UTF-16">UTF-16</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr><td>To encoding: </td>
+                    <td>
+                        <select id="encoding_to" name="encoding_to">
+                            <option value="ISO-8859-1">ISO-8859-1</option>
+                            <option value="WINDOWS-1252">WINDOWS-1252</option>
+                            <option value="UTF-8" selected="selected">UTF-8</option>
+                            <option value="UTF-16">UTF-16</option>
+                        </select>
+                    </td>
+                </tr>
+            </table>
+            
+            <p>&nbsp;</p> 
+            <button type="submit" value="Reinterpret" id="reinterpret">Reinterpret</button>
+            <p>&nbsp;</p> 
+            
+            <p>&nbsp;</p> 
+            <p id="sys-message"></p>           
+            <p>&nbsp;</p>  
+        </div>
+        <div id="loader"></div>
+        <p id="result"></p>
+        <p id="pagination"></p>
+        <div id="datatable">
+            <table id="table-main">
+                <thead></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </body>
+</html> 
+
