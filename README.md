@@ -75,14 +75,17 @@ In UTF-8 the character Î is represented as: 11000011 : 10101110, hex: 0xC3 0xAE
 In UTF-8 the character © is represented as: 11000010 : 10101001, hex: 0xC2 0xA9, dec: 194 : 169.\
 Instead of inserting 0xCE 0xA9 (Ω), 0xC3 0xAE 0xC2 0xA9 (Î©) was inserted.
 
-The byte sequence in hex: 0xC3 0xAE 0xC2 0xA9 needs to be: 0xCE 0xA9.\
-Thus Î© needs to be Ω. 
 
-On the binary level, the byte sequence 11000011 : 10101110 : 11000010 : 10101001 must be converted to: 11001110 : 10101001.
 
  
 ## How to solve the misinterpretations? 
-In order to clean the misinterpretations the misinterpreted byte sequence must convert to intended byte sequence. This is possible with this algorithm. 
+In order to clean the misinterpretations the misinterpreted byte sequence must convert to intended byte sequence. 
+
+The byte sequence (in hex): 0xC3 0xAE 0xC2 0xA9 needs to be: 0xCE 0xA9.\
+Thus Î© needs to be Ω. 
+
+On the binary level, the byte sequence 11000011 : 10101110 : 11000010 : 10101001 must be converted to: 11001110 : 10101001.
+This is possible with this algorithm. 
 
 As an example, Î© needs to be Ω.
 
