@@ -165,7 +165,14 @@ In order to clean the misinterpreted characters, the name of the original encodi
 
 
  
-## Test phase
+## Test & Use guide
+
+To clean the misinterpretation a couple of things must be set, these are: 
+1. DB Connection
+2. A target table
+3. A identification column
+4. A target column
+
 
 ### Test #1 From UTF-8 to Windows-1252 
 The following settings are used: 
