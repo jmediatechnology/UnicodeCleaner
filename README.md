@@ -19,18 +19,18 @@ See figure below, it portrays the contents of a table in phpMyAdmin.
 
 The textual representation of the table: 
 
-Char test Î©
-plantaardige oliÃ«n
-product price: â‚¬ 10,00.
-pokÃ©mon
-MAÃS (contains control chars)
-pinda?s
-MELKPROTEÃNE (contains control chars)
-weiÃŸ (contains control chars)
-BÃŠTAŸ (contains control chars)
-Ã  tout Ã  l''heureŸ (see you soon) (contains control chars)
-Ă  bientĂ´t (see you soon) (contains control chars)
-Il est Ã  Paris (he is in Paris) (contains control chars)
+Char test Î©\
+plantaardige oliÃ«n\
+product price: â‚¬ 10,00.\
+pokÃ©mon\
+MAÃS (contains control chars)\
+pinda?s\
+MELKPROTEÃNE (contains control chars)\
+weiÃŸ (contains control chars)\
+BÃŠTAŸ (contains control chars)\
+Ã  tout Ã  l''heureŸ (see you soon) (contains control chars)\
+Ă  bientĂ´t (see you soon) (contains control chars)\
+Il est Ã  Paris (he is in Paris) (contains control chars)\
 
  
 ### Why are some characters displayed in such weird way? 
