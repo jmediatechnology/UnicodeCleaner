@@ -30,7 +30,7 @@ weiÃŸ (contains control chars)\
 BÃŠTAŸ (contains control chars)\
 Ã  tout Ã  l''heureŸ (see you soon) (contains control chars)\
 Ă  bientĂ´t (see you soon) (contains control chars)\
-Il est Ã  Paris (he is in Paris) (contains control chars)\
+Il est Ã  Paris (he is in Paris) (contains control chars)
 
  
 ### Why are some characters displayed in such weird way? 
@@ -189,17 +189,17 @@ The remaining misinterpreted characters must be cleaned with a different encodin
 
 Textual representation: 
 
-Char test Ω
-plantaardige oliën
-product price: € 10,00.
-pokémon
-MAÃS (contains control chars)
-pinda?s
-MELKPROTEÃNE (contains control chars)
-weiÃ (contains control chars)
-BÃŠTA (contains control chars)
-Ã  tout Ã  l'heure (see you soon) (contains control chars)
-Ă  bientĂ´t (see you soon) (contains control chars)
+Char test Ω\
+plantaardige oliën\
+product price: € 10,00.\
+pokémon\
+MAÃS (contains control chars)\
+pinda?s\
+MELKPROTEÃNE (contains control chars)\
+weiÃ (contains control chars)\
+BÃŠTA (contains control chars)\
+Ã  tout Ã  l'heure (see you soon) (contains control chars)\
+Ă  bientĂ´t (see you soon) (contains control chars)\
 Il est Ã  Paris (he is in Paris) (contains control chars)
 
 
@@ -260,11 +260,11 @@ Cleaning misinterpreted characters with a manual translation table works by defi
 
 The pattern and replacement can be defined at Clean by Translation Table by clicking the Translation table button. The Translation table for this example looks like this: 
 
-' Ã '= à 
-'Ã '=à 
-'Ă '=à 
-'Ă´'=ô
-'ÃŠ'=Ê
+' Ã '= à \
+'Ã '=à \
+'Ă '=à \
+'Ă´'=ô\
+'ÃŠ'=Ê\
 '?s'='s
 
 After defining the Translation table the table could be reinterpreted. The reinterpretation happens by the configured Translation table. Screenshot of UI after pressing the Reinterpret button: 
