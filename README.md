@@ -33,7 +33,7 @@ Il est Ã  Paris (he is in Paris) (contains control chars)
 ### Why are some characters displayed in such weird way? 
 See figure below. 
 
- 
+ ![Why are some characters displayed in such weird way](https://github.com/jmediatechnology/UnicodeCleaner/blob/master/img/3_Why_are_some_characters_displayed_in_such_weird_way.bmp "Why are some characters displayed in such weird way")
 
 
 UTF-8 represents the Ω symbol on a binary level like this: 11001110 : 10101001.
