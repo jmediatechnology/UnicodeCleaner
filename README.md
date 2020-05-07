@@ -8,10 +8,13 @@ A table with Collation utf8_bin has misinterpreted characters.
 
 See figure below, it portrays the structe of a table in phpMyAdmin.
 
+ ![The structure of a table](https://github.com/jmediatechnology/UnicodeCleaner/blob/master/img/01_structure_of_table.png "This table uses utf8_bin")
+
  
 
 See figure below, it portrays the contents of a table in phpMyAdmin. 
 
+ ![The content of a table](https://github.com/jmediatechnology/UnicodeCleaner/blob/master/img/02_misinterpreted_content.png "The table contains data with misinterpreted characters")
  
 
 The textual representation of the table: 
@@ -33,7 +36,7 @@ Il est Ã  Paris (he is in Paris) (contains control chars)
 ### Why are some characters displayed in such weird way? 
 See figure below. 
 
- ![Why are some characters displayed in such weird way](https://github.com/jmediatechnology/UnicodeCleaner/blob/master/img/3_Why_are_some_characters_displayed_in_such_weird_way.bmp "Why are some characters displayed in such weird way")
+ ![Why are some characters displayed in such weird way](https://github.com/jmediatechnology/UnicodeCleaner/blob/master/img/03_Why_are_some_characters_displayed_in_such_weird_way.png "How the misinterpretation could happen")
 
 
 UTF-8 represents the Ω symbol on a binary level like this: 11001110 : 10101001.
@@ -81,6 +84,7 @@ In order to clean the misinterpretations the misinterpreted byte sequence must c
 
 As an example, Î© needs to be Ω.
 
+ ![How to clean](https://github.com/jmediatechnology/UnicodeCleaner/blob/master/img/04_how_to_solve_misinterpretations.png "Cleaning is possible by reinterpreting the misinterpreted characters")
  
 
 First, the binary values of the misinterpreted characters from a specific encoding must be found. 
@@ -89,9 +93,6 @@ Those two byte values combined (0xCE 0xA9) represent in UTF-8 the Ω symbol.
 
 
 
-
-
- 
 
 ### Will a change of collation in phpMyAdmin restore the misinterpretations?
 Short answer: YES and NO, it depends.
@@ -175,16 +176,12 @@ Amount of ignored cells: 8 cells.
 
 Screenshot with UI: 
 
- 
+  ![Test_1_UI](https://github.com/jmediatechnology/UnicodeCleaner/blob/master/img/05_test_1_utf8_to_windows1252.png "The user interface")
 
 
-
-
-
- 
 The result in the database: 
 
- 
+   ![Test_1_DB](https://github.com/jmediatechnology/UnicodeCleaner/blob/master/img/06_test_1_utf8_to_windows1252.png "The content of the table")
 
 The green arrow points to data that was successfully converted. However, not all characters could be cleaned, but a double misinterpretation didn’t happen which is a good thing. 
 
@@ -224,16 +221,12 @@ Amount of ignored cells: 9 cells.
 
 Screenshot with UI:
 
- 
-
-
-
-
+   ![Test_2_UI](https://github.com/jmediatechnology/UnicodeCleaner/blob/master/img/07_test_2_utf8_to_iso88591.png "The user interface")
 
  
 The result in the database: 
 
- 
+   ![Test_2_DB](https://github.com/jmediatechnology/UnicodeCleaner/blob/master/img/08_test_2_utf8_to_iso88591.png "The content of the table") 
 
 The green arrows marks the cleaned data. 
 Unfortunately, the French characters couldn’t be restored. 
@@ -250,7 +243,8 @@ Unfortunately, Iconv was unable to clean it.
 
 When the misinterpreted character is Ã then tracing back the original character with the conversion method describes in “How to solve” is impossible. The reason for it is because: à, Ý, Ð, Ï, Í, Á are all misinterpreted as Ã. 
 
- 
+ ![Test_3_French_chars_with_iconv](https://github.com/jmediatechnology/UnicodeCleaner/blob/master/img/09_test_3_french_characters_with_iconv.png "Iconv is not able to clean all misinterpretations") 
+    
 
 
 So misinterpreted French character should be cleaned with a manual translation table. 
@@ -276,9 +270,6 @@ The pattern and replacement can be defined at Clean by Translation Table by clic
 After defining the Translation table the table could be reinterpreted. The reinterpretation happens by the configured Translation table. Screenshot of UI after pressing the Reinterpret button: 
 
  
-
-
-
  
 Test results in database: 
 
