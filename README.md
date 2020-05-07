@@ -51,10 +51,12 @@ Link: http://www.fileformat.info/info/charset/windows-1252/list.htm
 
 Let’s put in a table for comparison: 
 
-	ISO-8859-1	UTF-8
-Ω	N/A	Hex: 0xCE 0xA9, dec: 206 : 169
-Î	Hex: 0xCE, dec: 206	Hex: 0xC3 0xAE, dec: 195 : 174
-©	Hex: 0xA9, dec: 169	Hex: 0xC2 0xA9, dec: 194 : 169
+| Char   | ISO-8859-1          | UTF-8                          |
+| ------ |:-------------------:| ------------------------------:|
+| Ω      | N/A                 | Hex: 0xCE 0xA9, dec: 206 : 169 |
+| Î      | Hex: 0xCE, dec: 206 | Hex: 0xC3 0xAE, dec: 195 : 174 |
+| ©      | Hex: 0xA9, dec: 169 | Hex: 0xC2 0xA9, dec: 194 : 169 |
+
 
 So, displaying Ω as Î© is just a matter of choosing the wrong encoding for the representation of characters. 
 UTF-8 represents 11001110 : 10101001 as Ω. 
