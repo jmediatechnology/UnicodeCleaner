@@ -167,15 +167,27 @@ In order to clean the misinterpreted characters, the name of the original encodi
  
 ## Test & Use guide
 
-To clean the misinterpretation a couple of things must be set, these are: 
+To clean misinterpretations a couple of things must be set, these are: 
 1. DB Connection
 2. A target table
 3. A identification column
 4. A target column
 
+What's next is that Unicode Cleaner offers two way's of reinterpreting, these are: 
+1. Reinterpreting through Iconv
+2. Reinterpreting through a Translation Table
 
 ### Test #1 From UTF-8 to Windows-1252 
-The following settings are used: 
+This method uses Iconv. 
+
+Iconv reinterpreted by supplying: 
+1. an Input encoding / char set
+2. an Output encoding / char set
+3. an input string
+
+In UnicodeCleaner one must supply the name of the Input and output encoding. 
+
+In this test the following settings are used: 
 
 Database connection encoding: UTF-8
 From encoding: UTF-8
