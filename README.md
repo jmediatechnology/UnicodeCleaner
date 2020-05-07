@@ -39,14 +39,14 @@ See figure below.
  ![Why are some characters displayed in such weird way](https://github.com/jmediatechnology/UnicodeCleaner/blob/master/img/03_Why_are_some_characters_displayed_in_such_weird_way.png "How the misinterpretation could happen")
 
 
-UTF-8 represents the Ω symbol on a binary level like this: 11001110 : 10101001.
-In hex those 2 bytes are represented like this: 0xCE 0xA9. 
-The decimal values are: 206 : 169.
+UTF-8 represents the Ω symbol on a binary level like this: 11001110 : 10101001.\
+In hex those 2 bytes are represented like this: 0xCE 0xA9. \
+The decimal values are: 206 : 169.\
 Link: https://www.fileformat.info/info/unicode/char/03a9/index.htm
 
-In ISO-8859-1 the byte sequence of 11001110 : 10101001 represents these characters: Î©. 
-Bin: 11001110 = hex: 0xCE, dec: 206 and represented as Î.
-Bin: 10101001 = hex: 0xA9, dec: 169 and represented as ©.
+In ISO-8859-1 the byte sequence of 11001110 : 10101001 represents these characters: Î©. \
+Bin: 11001110 = hex: 0xCE, dec: 206 and represented as Î.\
+Bin: 10101001 = hex: 0xA9, dec: 169 and represented as ©.\
 Link: http://www.fileformat.info/info/charset/windows-1252/list.htm
 
 Let’s put in a table for comparison: 
@@ -58,11 +58,11 @@ Let’s put in a table for comparison:
 | ©      | Hex: 0xA9, dec: 169 | Hex: 0xC2 0xA9, dec: 194 : 169 |
 
 
-So, displaying Ω as Î© is just a matter of choosing the wrong encoding for the representation of characters. 
-UTF-8 represents 11001110 : 10101001 as Ω. 
+So, displaying Ω as Î© is just a matter of choosing the wrong encoding for the representation of characters. \
+UTF-8 represents 11001110 : 10101001 as Ω. \
 Windows-1252 represents 11001110 : 10101001 as Î©.
 
-Things get complicated when the misinterpreted characters are resaved. 
+Things get complicated when the misinterpreted characters are resaved. \
 The byte values of misinterpreted characters will change to their misinterpreted byte values.  
 
 
@@ -70,12 +70,12 @@ The byte values of misinterpreted characters will change to their misinterpreted
 ## The problem: a misinterpreted byte sequence
 When the collation of a table is utf8_bin, but Ω is displayed as Î©, it means that there was a misinterpretation during the insertion of data and that the byte sequence is stored with a misinterpreted byte sequence.
 
-The characters Î and © exists in UTF-8. 
-In UTF-8 the character Î is represented as: 11000011 : 10101110, hex: 0xC3 0xAE, dec: 195 : 174.  
-In UTF-8 the character © is represented as: 11000010 : 10101001, hex: 0xC2 0xA9, dec: 194 : 169.
+The characters Î and © exists in UTF-8.\
+In UTF-8 the character Î is represented as: 11000011 : 10101110, hex: 0xC3 0xAE, dec: 195 : 174.\
+In UTF-8 the character © is represented as: 11000010 : 10101001, hex: 0xC2 0xA9, dec: 194 : 169.\
 Instead of inserting 0xCE 0xA9 (Ω), 0xC3 0xAE 0xC2 0xA9 (Î©) was inserted.
 
-The byte sequence in hex: 0xC3 0xAE 0xC2 0xA9 needs to be: 0xCE 0xA9.
+The byte sequence in hex: 0xC3 0xAE 0xC2 0xA9 needs to be: 0xCE 0xA9.\
 Thus Î© needs to be Ω. 
 
 On the binary level, the byte sequence 11000011 : 10101110 : 11000010 : 10101001 must be converted to: 11001110 : 10101001.
@@ -89,15 +89,15 @@ As an example, Î© needs to be Ω.
  ![How to clean](https://github.com/jmediatechnology/UnicodeCleaner/blob/master/img/04_how_to_solve_misinterpretations.png "Cleaning is possible by reinterpreting the misinterpreted characters")
  
 
-First, the binary values of the misinterpreted characters from a specific encoding must be found. 
-In ISO-8859-1, the binary value in hex of Î is 0xCE, the binary value in hex of © is 0xA9. 
+First, the binary values of the misinterpreted characters from a specific encoding must be found.\
+In ISO-8859-1, the binary value in hex of Î is 0xCE, the binary value in hex of © is 0xA9.\
 Those two byte values combined (0xCE 0xA9) represent in UTF-8 the Ω symbol.
 
 
 
 
 ### Will a change of collation in phpMyAdmin restore the misinterpretations?
-Short answer: YES and NO, it depends.
+Short answer: YES and NO, it depends.\
 Long answer: 
 
 When you try to change the collation a warning message will pop-up. 
