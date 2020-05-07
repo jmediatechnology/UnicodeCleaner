@@ -269,15 +269,20 @@ The pattern and replacement can be defined at Clean by Translation Table by clic
 
 After defining the Translation table the table could be reinterpreted. The reinterpretation happens by the configured Translation table. Screenshot of UI after pressing the Reinterpret button: 
 
- 
+  ![Test_4_French_chars_with_translation_table](https://github.com/jmediatechnology/UnicodeCleaner/blob/master/img/10_test_4_french_characters_with_translation_table.png "Reinterpret according to a Translation Table") 
  
 Test results in database: 
 
- 
+  ![Test_4_French_chars_with_translation_table_db](https://github.com/jmediatechnology/UnicodeCleaner/blob/master/img/11_test_4_french_characters_with_translation_table.png "Contents of the table after reinterpreting by Translation Table") 
+  
 
 The green arrows marks the cleaned data.
 
 When the Reinterpret button is clicked again, then there is nothing to reinterpret. 
+
+  ![Test_4_French_chars_with_translation_table_prevent_reinterpret_twice](https://github.com/jmediatechnology/UnicodeCleaner/blob/master/img/12_test_4_french_characters_with_translation_table.png "Prevent reinterpret twice") 
+  
+
 
  
  
