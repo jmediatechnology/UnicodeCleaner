@@ -65,21 +65,124 @@ require_once 'Autoloader.php';
 // Constants
 //==========================================================================================================================
 
+define('FILENAME', 'config.ini');
 define('FILENAME_TRANSLATION_TABLE', 'translation_table.ini');
 
 //==========================================================================================================================
-// Instantiate dependencies
+// Main script
 //==========================================================================================================================
 
 $output = array();
 
-try {
 
-    if(!file_exists(FILENAME_TRANSLATION_TABLE)){
-        throw new Exception('No translation table ini file found. ');
-    }
-    $content = file(FILENAME_TRANSLATION_TABLE);
+try {
     
+    if(empty($_POST)){
+        throw new Exception('No translation content. ');
+    }
+    if(!key_exists('translation_table_content', $_POST)){
+        throw new Exception('No translation content. ');
+    }
+    
+    $translation_table_content = $_POST['translation_table_content'];
+    unset($_POST['translation_table_content']);
+    
+    $bytesWritten = file_put_contents(FILENAME_TRANSLATION_TABLE, $translation_table_content);
+    if(!$bytesWritten){
+        throw new Exception('Failure to write. ');
+    }
+       
+    if($bytesWritten){
+        header('Content-Type: application/json');
+        
+        $output['success'] = true;
+        echo json_encode($output);
+        exit;
+    }
+    
+} catch (Exception $exc){
+    
+    header($_SERVER["SERVER_PROTOCOL"]." 422 Unprocessable Entity"); 
+    header('Content-Type: application/json');
+    
+    $output['error'] = $exc->getMessage();
+    echo json_encode($output);
+    exit;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+try {
+    
+    $sql = "SELECT  TABLE_SCHEMA,
+                    TABLE_NAME,
+                    COLUMN_NAME,
+                    DATA_TYPE,
+                    CHARACTER_MAXIMUM_LENGTH,
+                    COLLATION_NAME,
+                    COLUMN_TYPE,
+                    COLUMN_KEY,
+                    EXTRA
+        FROM `COLUMNS` WHERE `TABLE_SCHEMA` LIKE ? AND `TABLE_NAME` LIKE ? ";  
+
+    $statement = $mysqli->prepare($sql);  
+    if ($statement instanceof mysqli_stmt === false) {   
+        throw new Exception('Query error');
+    }
+    
+    $tableName = $_GET['tableName'];
+    $statement->bind_param('ss',  $db, $tableName);
+    $statement->execute(); 
+
+    $mysqli_result = $statement->get_result();  
+    if(!($mysqli_result instanceof mysqli_result)){   
+        throw new Exception('Error during retrieval of results. ');
+    }   
 } catch (Exception $exc) {
     header($_SERVER["SERVER_PROTOCOL"]." 422 Unprocessable Entity"); 
     header('Content-Type: application/json');
@@ -89,13 +192,8 @@ try {
     exit;
 }
 
-//==========================================================================================================================
-// Main script
-//==========================================================================================================================
-
-
-
 header('Content-Type: application/json');
 
-echo json_encode($content);
+$information_schema_entities = $mysqli_result->fetch_all(MYSQLI_ASSOC); 
+echo json_encode($information_schema_entities);
 

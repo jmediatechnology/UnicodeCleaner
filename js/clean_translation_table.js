@@ -13,15 +13,17 @@ $(window).ready(function () {
                 $("div#loader").css("display", "block");
             },
             success: function (data, textStatus, jqXHR) {
-
+                
                 if(jqXHR.getResponseHeader('Content-Type') !== 'application/json'){
                     data = JSON.parse(data);
                 }
                 
+                let translationTable = Object.values(data);
+                
                 let htmlContent = '';
-                Object.keys(data).forEach(function(key) {
-                    htmlContent += key + '=' + data[key] + '\n';
-                });
+                for(let i = 0; i < translationTable.length; i++) {
+                    htmlContent += translationTable[i]; 
+                }
                 
                 let sqrtWidth = Math.sqrt($(window).width());
                 
@@ -47,6 +49,43 @@ $(window).ready(function () {
             }
         });
 
+    });
+    
+    $('div#dialog').on('click', 'button#translation_table_save_button', function (e) {
+        
+        $.ajax({
+            url: "ajax/setTranslationTable.php",
+            type: "POST",
+            data: {
+                translation_table_content: $('#translation_table_textarea').val(),
+            },
+            beforeSend: function () {
+                // $("div#loader").css("display", "block");
+            },
+            success: function (data, textStatus, jqXHR) {
+
+                if(jqXHR.getResponseHeader('Content-Type') !== 'application/json'){
+                    data = JSON.parse(data);
+                }
+
+                $("div#loader").css("display", "none");
+                $("div#dialog").dialog("close");
+                
+                if (data.hasOwnProperty('success') && data.success === true) {
+                    $("#sys-message").html('Translation table set. ');
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+
+                $("div#loader").css("display", "none");
+
+                if(jqXHR.hasOwnProperty('responseJSON') && jqXHR.responseJSON.hasOwnProperty('error')){
+                    $("#sys-message").html(jqXHR.responseJSON.error);
+                }
+            }
+        });
+        
+        
     });
     
     // -------------------------------------------------------------------------
