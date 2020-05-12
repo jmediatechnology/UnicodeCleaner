@@ -8,6 +8,7 @@ $(window).ready(function () {
         $.ajax({
             url: "ajax/fetchTranslationTable.php",
             type: "GET",
+            cache: false,
             data: {},
             beforeSend: function () {
                 $("div#loader").css("display", "block");
@@ -31,8 +32,8 @@ $(window).ready(function () {
                     width: sqrtWidth * sqrtWidth - (sqrtWidth * 10),
                     height: $(window).height(),
                 });
-                                
-                $("#translation_table_textarea").html(htmlContent);
+                
+                $("#translation_table_textarea").val(htmlContent);
                 
                 $("div#loader").css("display", "none");
             },
@@ -40,7 +41,6 @@ $(window).ready(function () {
                 
                 $("#sys-message").html(errorThrown + '. <br>');
                 
-                console.log(jqXHR);
                 if(jqXHR.hasOwnProperty('responseJSON') && jqXHR.responseJSON.hasOwnProperty('error')){
                     $("#sys-message").append(jqXHR.responseJSON.error);
                 }
@@ -79,6 +79,8 @@ $(window).ready(function () {
 
                 $("div#loader").css("display", "none");
                 $("div#dialog").dialog("close");
+                
+                $("#translation_table_textarea").val('');
                 
                 if(jqXHR.hasOwnProperty('responseJSON') && jqXHR.responseJSON.hasOwnProperty('error')){
                     $("#sys-message").html('Error: <br>' + jqXHR.responseJSON.error);
