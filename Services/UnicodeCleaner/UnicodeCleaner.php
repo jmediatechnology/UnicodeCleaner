@@ -2,7 +2,17 @@
 
 namespace Services\UnicodeCleaner;
 
+use \Entities\ReinterpretStats\ReinterpretStats;
+
 class UnicodeCleaner {
+
+    const OUTPUT_DATA = 'data';
+    
+    const PAGING_PAGE_INIT = 1;
+    const PAGING_PAGE_SIZE = 2;
+    
+    const STATS_COUNT_IGNORED = 'amountOfIgnoredCells';
+    const STATS_COUNT_CONVERTED = 'amountOfConvertedCells';
 
     private $db;
 
@@ -40,9 +50,11 @@ class UnicodeCleaner {
         return $this->field;
     }
 
-    public function fetchGarbledFieldValues($translation_table = array()) {
-        
-        // -- t1.". $this->field  ." LIKE '%Ã%' COLLATE utf8_bin  OR t1.". $this->field ." LIKE '%Ã%' COLLATE utf8_bin 
+    public function fetchGarbledFieldValues(&$pagePointer = 1, $pageSize = 3, $translation_table = array()) {
+     
+        // ---------------------------------------------------------------------
+        // Step 1) Build the base SELECT query
+        // ---------------------------------------------------------------------
         $sql = "
             SELECT
                     t1.". $this->fieldPK .",
@@ -52,6 +64,9 @@ class UnicodeCleaner {
                 true 
         ";
         
+        // ---------------------------------------------------------------------
+        // Step 2) Narrow down search by the Translation Table. 
+        // ---------------------------------------------------------------------
         if($translation_table){
             $i = 0;
             foreach(array_keys($translation_table) as $misinterpretedWord){
@@ -70,10 +85,22 @@ class UnicodeCleaner {
             }
         }
 
+        // ---------------------------------------------------------------------
+        // Step 3) Define the offset for paging the query. 
+        // ---------------------------------------------------------------------
+        if($translation_table){
+            $offset = 0;
+        } else {
+            $offset = ($pagePointer - 1) * $pageSize;
+        }
+        $sql .= " LIMIT ?, ? ";
+        
         $statement = $this->db->prepare($sql);        
         if ($statement instanceof \mysqli_stmt === false) {
             return null;
         }
+        
+        $statement->bind_param('dd', $offset, $pageSize);
 
         $statement->execute();
         $statement->bind_result($id, $field);
@@ -82,8 +109,135 @@ class UnicodeCleaner {
         while($statement->fetch()){
             $entities[$id] = $field;
         }
-
+        
+        $pagePointer++;
+        
         return $entities;
+    }
+    
+    public function reinterpret($from, $to, array $translation_table = array()) { 
+
+        /* @var $reinterpretStats ReinterpretStats */
+        $reinterpretStats = new ReinterpretStats;
+        
+        $pagePointer = self::PAGING_PAGE_INIT;
+        $this->reinterpretRecursive($pagePointer, $reinterpretStats, $from, $to, $translation_table);
+        
+        return $reinterpretStats;
+    }
+    
+    public function reinterpretRecursive($pagePointer, ReinterpretStats $reinterpretStats, $from, $to, array $translation_table = array()){
+        
+        $garbledFieldValues = $this->fetchGarbledFieldValues($pagePointer, self::PAGING_PAGE_SIZE, $translation_table);
+        
+        if ($pagePointer === self::PAGING_PAGE_INIT && !$garbledFieldValues) {
+            throw new \Exception('No misinterpreted data found :-)');
+        }
+        if(!$garbledFieldValues){
+            return false;
+        }
+        
+        if($translation_table){
+            $this->translateCustom($garbledFieldValues, $reinterpretStats, $from, $to, $translation_table);
+        } else {
+            $this->iconv($garbledFieldValues, $reinterpretStats, $from, $to);
+        }
+        
+        return $this->reinterpretRecursive($pagePointer, $reinterpretStats, $from, $to, $translation_table);
+    }
+
+    public function translateCustom($garbledFieldValues, $reinterpretStats, $from, $to, $translation_table){
+        
+        if (!$garbledFieldValues) {
+            throw new \Exception('No garbledFieldValues given. ');
+        }
+        
+        $output = array();
+        
+        $amountOfIgnoredCells = 0;
+        $amountOfConvertedCells = 0;             
+        foreach ($garbledFieldValues as $id => $field) {
+
+            $output[self::OUTPUT_DATA][$id] = array();
+
+            try {       
+                $convertedStr = $this->translateByTranslationTable($translation_table, $field);
+            } catch (Exception $ex) {
+                $output[self::OUTPUT_DATA][$id]['error'] = $ex->getMessage();
+                $amountOfIgnoredCells++;
+                continue;
+            }
+
+            $isOutCharset = $this->isOutCharset($convertedStr, $to) ? true : false;
+            if (!$isOutCharset || !$convertedStr) {
+                $amountOfIgnoredCells++;
+                continue;
+            }
+
+            if ($isOutCharset) {
+                $affected_rows = $this->updateField($id, $convertedStr);
+                if($affected_rows){
+                    $output[self::OUTPUT_DATA][$id]['text'] = $convertedStr;
+                    $amountOfConvertedCells += $affected_rows;            
+                } else {
+                    $amountOfIgnoredCells++;
+                }
+            }
+        }
+        
+        $reinterpretStats->countIgnored += $amountOfIgnoredCells;
+        $reinterpretStats->countConverted += $amountOfConvertedCells;
+
+        return $output;
+    }
+
+    public function iconv(array $garbledFieldValues, ReinterpretStats $reinterpretStats, $from, $to){
+        
+        if (!$garbledFieldValues) {
+            throw new \Exception('No garbledFieldValues given. ');
+        }
+        
+        $output = array();
+        
+        $amountOfIgnoredCells = 0;
+        $amountOfConvertedCells = 0;             
+        foreach ($garbledFieldValues as $id => $field) {
+
+            $output[self::OUTPUT_DATA][$id] = array();
+
+            try {
+                $convertedStr = iconv($from, $to, $field);
+            } catch (\Exception $ex) {
+                $output[self::OUTPUT_DATA][$id]['error'] = $ex->getMessage();
+                $amountOfIgnoredCells++;
+                continue;
+            }
+
+            $isOutCharset = $this->isOutCharset($convertedStr, $to) ? true : false;
+            if (!$isOutCharset || !$convertedStr) {
+                $amountOfIgnoredCells++;
+                continue;
+            }
+
+            if ($isOutCharset) {
+                $affected_rows = $this->updateField($id, $convertedStr);
+                if($affected_rows){
+                    $output[self::OUTPUT_DATA][$id]['text'] = $convertedStr;
+                    $amountOfConvertedCells += $affected_rows;            
+                } else {
+                    $amountOfIgnoredCells++;
+                }
+            }
+        }
+        
+        $reinterpretStats->countIgnored += $amountOfIgnoredCells;
+        $reinterpretStats->countConverted += $amountOfConvertedCells;
+
+        return $output;
+    }
+    
+    private function isOutCharset($str, $outputCharset) {
+        return mb_check_encoding($str, $outputCharset);
     }
 
     /**

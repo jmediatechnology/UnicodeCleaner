@@ -78,9 +78,10 @@ $(window).ready(function () {
             error: function (jqXHR, textStatus, errorThrown) {
 
                 $("div#loader").css("display", "none");
-
+                $("div#dialog").dialog("close");
+                
                 if(jqXHR.hasOwnProperty('responseJSON') && jqXHR.responseJSON.hasOwnProperty('error')){
-                    $("#sys-message").html(jqXHR.responseJSON.error);
+                    $("#sys-message").html('Error: <br>' + jqXHR.responseJSON.error);
                 }
             }
         });
@@ -94,7 +95,7 @@ $(window).ready(function () {
     $('button#reinterpret').on('click', function (e) {
         
         $.ajax({
-            url: "ajax/reinterpret_custom.php",
+            url: "ajax/reinterpret_translation_table.php",
             type: "POST",
             data: {
                 encoding_for_db_connection: $('#encoding_for_db_connection').val().trim(),

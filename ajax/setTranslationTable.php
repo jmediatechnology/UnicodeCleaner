@@ -60,6 +60,11 @@ set_error_handler(function($errno, $errstr, $errfile, $errline) {
 chdir('../');
 require_once 'Autoloader.php';
 
+//==========================================================================================================================
+// DEPENDENCIES
+//==========================================================================================================================
+
+use \Services\UnicodeCleaner\TranslationTableValidator;
 
 //==========================================================================================================================
 // Constants
@@ -87,11 +92,15 @@ try {
     $translation_table_content = $_POST['translation_table_content'];
     unset($_POST['translation_table_content']);
     
+    $translation_table = parse_ini_string($translation_table_content, true);
+    $translationTableValidator = new TranslationTableValidator($translation_table);
+    $translationTableValidator->validate();
+    
     $bytesWritten = file_put_contents(FILENAME_TRANSLATION_TABLE, $translation_table_content);
     if(!$bytesWritten){
         throw new Exception('Failure to write. ');
     }
-       
+    
     if($bytesWritten){
         header('Content-Type: application/json');
         

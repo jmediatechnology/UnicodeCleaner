@@ -71,6 +71,7 @@ require_once 'Autoloader.php';
 //==========================================================================================================================
 
 use \Services\UnicodeCleaner\UnicodeCleaner;
+use \Services\UnicodeCleaner\TranslationTableValidator;
 use \Entities\ReinterpretStats\ReinterpretStats;
 
 //==========================================================================================================================
@@ -78,9 +79,11 @@ use \Entities\ReinterpretStats\ReinterpretStats;
 //==========================================================================================================================
 
 define('FILENAME', 'config.ini');
+define('FILENAME_TRANSLATION_TABLE', 'translation_table.ini');
 define('SECTION_DB', 'database');
 define('SECTION_TARGET', 'target');
 
+define('OUTPUT_DATA', 'data');
 define('OUTPUT_ERROR', 'Error in displaying data');
 
 //==========================================================================================================================
@@ -124,6 +127,10 @@ try {
     }
     $mysqli->set_charset($_POST['encoding_for_db_connection']);
     
+    $translation_table = parse_ini_file(FILENAME_TRANSLATION_TABLE, true);
+    $translationTableValidator = new TranslationTableValidator($translation_table);
+    $translationTableValidator->validate();
+    
 } catch (Exception $exc) {
     header($_SERVER["SERVER_PROTOCOL"]." 422 Unprocessable Entity"); 
     header('Content-Type: application/json');
@@ -141,16 +148,16 @@ try {
     $unicodeCleaner->setTable($ini_array[SECTION_TARGET]['target_table']);
     $unicodeCleaner->setFieldPK($ini_array[SECTION_TARGET]['target_column_id']);
     $unicodeCleaner->setField($ini_array[SECTION_TARGET]['target_column_target']);
-        
+    
     $from = $_POST['encoding_from'];
     $to = $_POST['encoding_to'];
     
     /* @var $reinterpretStats ReinterpretStats */
-    $reinterpretStats = $unicodeCleaner->reinterpret($from, $to);
+    $reinterpretStats = $unicodeCleaner->reinterpret($from, $to, $translation_table);
     
     $amountOfIgnoredCells = $reinterpretStats->countIgnored;
     $amountOfConvertedCells = $reinterpretStats->countConverted;
-
+    
 } catch (Exception $exc) {
     header($_SERVER["SERVER_PROTOCOL"]." 422 Unprocessable Entity"); 
     header('Content-Type: application/json');
@@ -222,31 +229,5 @@ function validateJSON($outputJSON, $messageAmountOfConvertedCells, $messageAmoun
     }
     
     return $message;
-}
-
-function hasGarbledChars($str) {
-
-    // @link: https://www.i18nqa.com/debug/utf8-debug.html
-    $misinterpretedChars = array(
-        'â‚¬','â€š','Æ’','â€ž','â€¦','â€','â€¡','Ë†','â€°','Å','â€¹','Å’','Å½',
-        'â€˜','â€™','â€œ','â€','â€¢','â€“','â€”','Ëœ','â„¢','Å¡','â€º','Å“',
-        'Å¾','Å¸','Â','Â¡','Â¢','Â£','Â¤','Â¥','Â¦','Â§','Â¨','Â©','Âª','Â«',
-        'Â¬','Â­','Â®','Â¯', 'Â°','Â±','Â²','Â³','Â´','Âµ', 'Â¶','Â·','Â¸','Â¹',
-        'Âº','Â»','Â¼','Â½','Â¾','Â¿','Ã€','Ã','Ã‚','Ãƒ','Ã„','Ã…','Ã†','Ã‡',
-        'Ãˆ','Ã‰','ÃŠ','Ã‹','ÃŒ','Ã','ÃŽ','Ã','Ã','Ã‘','Ã’','Ã“','Ã”','Ã•','Ã–',
-        'Ã—','Ã˜','Ã™','Ãš','Ã›','Ãœ','Ã','Ãž','ÃŸ','Ã','Ã¡','Ã¢','Ã£','Ã¤','Ã¥',
-        'Ã¦','Ã§','Ã¨','Ã©','Ãª','Ã«','Ã¬','Ã­','Ã®','Ã¯','Ã°','Ã±','Ã²','Ã³',
-        'Ã´','Ãµ','Ã¶','Ã·','Ã¸','Ã¹','Ãº','Ã»','Ã¼','Ã½','Ã¾','Ã¿',
-
-        'â?¬','â„®','â€',
-    );
-
-    foreach($misinterpretedChars as $misinterpretated){
-        if(strpos($str,$misinterpretated) !== FALSE){
-            return true;
-        }
-    }
-
-    return false;
 }
 
