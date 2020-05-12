@@ -92,9 +92,14 @@ try {
     $translation_table_content = $_POST['translation_table_content'];
     unset($_POST['translation_table_content']);
     
+    $translationTableValidator = new TranslationTableValidator;
+    $translationTableValidator->setTTString($translation_table_content);
+    $translationTableValidator->validateTTString();
+    
     $translation_table = parse_ini_string($translation_table_content, true);
-    $translationTableValidator = new TranslationTableValidator($translation_table);
-    $translationTableValidator->validate();
+    
+    $translationTableValidator->setTTArray($translation_table);
+    $translationTableValidator->validateTTArray();
     
     $bytesWritten = file_put_contents(FILENAME_TRANSLATION_TABLE, $translation_table_content);
     if(!$bytesWritten){

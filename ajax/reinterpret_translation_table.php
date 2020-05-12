@@ -128,8 +128,9 @@ try {
     $mysqli->set_charset($_POST['encoding_for_db_connection']);
     
     $translation_table = parse_ini_file(FILENAME_TRANSLATION_TABLE, true);
-    $translationTableValidator = new TranslationTableValidator($translation_table);
-    $translationTableValidator->validate();
+    $translationTableValidator = new TranslationTableValidator;
+    $translationTableValidator->setTTArray($translation_table);
+    $translationTableValidator->validateTTArray();
     
 } catch (Exception $exc) {
     header($_SERVER["SERVER_PROTOCOL"]." 422 Unprocessable Entity"); 
