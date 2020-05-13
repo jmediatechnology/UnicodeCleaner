@@ -23,8 +23,10 @@ class TranslationTableValidator {
         }
         
         $TTstring = preg_split('/\r\n|\r|\n/', $this->TTString);
+        $TTstring = array_filter($TTstring);
         $TTstringSearchList = array_map(function($v){
-            return strstr($v, '=', true);
+            // Return the sub-string before the '=' character. 
+            return substr($v, 0, strpos($v, '='));
         }, $TTstring);
         
         $TTstringSearchCounter = array_count_values($TTstringSearchList);

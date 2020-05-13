@@ -127,8 +127,13 @@ try {
     }
     $mysqli->set_charset($_POST['encoding_for_db_connection']);
     
-    $translation_table = parse_ini_file(FILENAME_TRANSLATION_TABLE, true);
+    $translation_table_content = file_get_contents(FILENAME_TRANSLATION_TABLE);
+    
     $translationTableValidator = new TranslationTableValidator;
+    $translationTableValidator->setTTString($translation_table_content);
+    $translationTableValidator->validateTTString();
+    
+    $translation_table = parse_ini_string($translation_table_content, true);
     $translationTableValidator->setTTArray($translation_table);
     $translationTableValidator->validateTTArray();
     
