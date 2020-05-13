@@ -3,11 +3,10 @@
 namespace Services\UnicodeCleaner;
 
 use \Entities\ReinterpretStats\ReinterpretStats;
+use \Entities\ReinterpretSettings\ReinterpretSettings;
 
 class UnicodeCleaner {
-
-    const OUTPUT_DATA = 'data';
-    
+   
     const PAGING_PAGE_INIT = 1;
     const PAGING_PAGE_SIZE = 2;
     
@@ -50,8 +49,10 @@ class UnicodeCleaner {
         return $this->field;
     }
 
-    public function fetchGarbledFieldValues(&$pagePointer = 1, $pageSize = 3, $translation_table = array()) {
+    public function fetchGarbledFieldValues(&$pagePointer = 1, ReinterpretSettings $reinterpretSettings, $translation_table = array()) {
      
+        $pageSize = self::PAGING_PAGE_SIZE;
+                
         // ---------------------------------------------------------------------
         // Step 1) Build the base SELECT query
         // ---------------------------------------------------------------------
@@ -88,7 +89,7 @@ class UnicodeCleaner {
         // ---------------------------------------------------------------------
         // Step 3) Define the offset for paging the query. 
         // ---------------------------------------------------------------------
-        if($translation_table){
+        if($translation_table && $reinterpretSettings->mode !== 'preview'){
             $offset = 0;
         } else {
             $offset = ($pagePointer - 1) * $pageSize;
@@ -115,20 +116,17 @@ class UnicodeCleaner {
         return $entities;
     }
     
-    public function reinterpret($from, $to, array $translation_table = array()) { 
+    public function reinterpret(ReinterpretSettings $reinterpretSettings, array $translation_table = array()) { 
 
-        /* @var $reinterpretStats ReinterpretStats */
-        $reinterpretStats = new ReinterpretStats;
-        
         $pagePointer = self::PAGING_PAGE_INIT;
-        $this->reinterpretRecursive($pagePointer, $reinterpretStats, $from, $to, $translation_table);
+        $this->reinterpretRecursive($pagePointer, $reinterpretSettings, $translation_table);
         
-        return $reinterpretStats;
+        return $reinterpretSettings;
     }
     
-    public function reinterpretRecursive($pagePointer, ReinterpretStats $reinterpretStats, $from, $to, array $translation_table = array()){
+    public function reinterpretRecursive($pagePointer, ReinterpretSettings $reinterpretSettings, array $translation_table = array()){
         
-        $garbledFieldValues = $this->fetchGarbledFieldValues($pagePointer, self::PAGING_PAGE_SIZE, $translation_table);
+        $garbledFieldValues = $this->fetchGarbledFieldValues($pagePointer, $reinterpretSettings, $translation_table);
         
         if ($pagePointer === self::PAGING_PAGE_INIT && !$garbledFieldValues) {
             throw new \Exception('No misinterpreted data found :-)');
@@ -138,15 +136,15 @@ class UnicodeCleaner {
         }
         
         if($translation_table){
-            $this->translateCustom($garbledFieldValues, $reinterpretStats, $from, $to, $translation_table);
+            $this->translateCustom($garbledFieldValues, $reinterpretSettings, $translation_table);
         } else {
-            $this->iconv($garbledFieldValues, $reinterpretStats, $from, $to);
+            $this->iconv($garbledFieldValues, $reinterpretSettings);
         }
         
-        return $this->reinterpretRecursive($pagePointer, $reinterpretStats, $from, $to, $translation_table);
+        return $this->reinterpretRecursive($pagePointer, $reinterpretSettings, $translation_table);
     }
 
-    public function translateCustom($garbledFieldValues, $reinterpretStats, $from, $to, $translation_table){
+    public function translateCustom($garbledFieldValues, ReinterpretSettings $reinterpretSettings, $translation_table){
         
         if (!$garbledFieldValues) {
             throw new \Exception('No garbledFieldValues given. ');
@@ -158,40 +156,52 @@ class UnicodeCleaner {
         $amountOfConvertedCells = 0;             
         foreach ($garbledFieldValues as $id => $field) {
 
-            $output[self::OUTPUT_DATA][$id] = array();
+            $output[$id] = array();
 
             try {       
                 $convertedStr = $this->translateByTranslationTable($translation_table, $field);
             } catch (Exception $ex) {
-                $output[self::OUTPUT_DATA][$id]['error'] = $ex->getMessage();
+                $output[$id]['error'] = $ex->getMessage();
                 $amountOfIgnoredCells++;
                 continue;
             }
 
-            $isOutCharset = $this->isOutCharset($convertedStr, $to) ? true : false;
+            $isOutCharset = $this->isOutCharset($convertedStr, $reinterpretSettings->to) ? true : false;
             if (!$isOutCharset || !$convertedStr) {
                 $amountOfIgnoredCells++;
                 continue;
             }
 
-            if ($isOutCharset) {
+            if ($isOutCharset && $reinterpretSettings->mode != 'preview') {
                 $affected_rows = $this->updateField($id, $convertedStr);
                 if($affected_rows){
-                    $output[self::OUTPUT_DATA][$id]['text'] = $convertedStr;
+                    $output[$id] = array(
+                        'old' => $field,
+                        'new' => $convertedStr,
+                    );
                     $amountOfConvertedCells += $affected_rows;            
                 } else {
                     $amountOfIgnoredCells++;
                 }
             }
+            
+            if ($isOutCharset && $reinterpretSettings->mode === 'preview') {
+                $output[$id] = array(
+                    'old' => $field,
+                    'new' => $convertedStr,
+                );
+            }
         }
         
-        $reinterpretStats->countIgnored += $amountOfIgnoredCells;
-        $reinterpretStats->countConverted += $amountOfConvertedCells;
+        $reinterpretSettings->reinterpretStats->countIgnored += $amountOfIgnoredCells;
+        $reinterpretSettings->reinterpretStats->countConverted += $amountOfConvertedCells;
+        
+        $reinterpretSettings->data = $reinterpretSettings->data + $output;
 
-        return $output;
+        return null;
     }
 
-    public function iconv(array $garbledFieldValues, ReinterpretStats $reinterpretStats, $from, $to){
+    public function iconv(array $garbledFieldValues, ReinterpretSettings $reinterpretSettings){
         
         if (!$garbledFieldValues) {
             throw new \Exception('No garbledFieldValues given. ');
@@ -203,17 +213,17 @@ class UnicodeCleaner {
         $amountOfConvertedCells = 0;             
         foreach ($garbledFieldValues as $id => $field) {
 
-            $output[self::OUTPUT_DATA][$id] = array();
+            $output[$id] = array();
 
             try {
-                $convertedStr = iconv($from, $to, $field);
+                $convertedStr = iconv($reinterpretSettings->from, $reinterpretSettings->to, $field);
             } catch (\Exception $ex) {
-                $output[self::OUTPUT_DATA][$id]['error'] = $ex->getMessage();
+                $output[$id]['error'] = $ex->getMessage();
                 $amountOfIgnoredCells++;
                 continue;
             }
 
-            $isOutCharset = $this->isOutCharset($convertedStr, $to) ? true : false;
+            $isOutCharset = $this->isOutCharset($convertedStr, $reinterpretSettings->to) ? true : false;
             if (!$isOutCharset || !$convertedStr) {
                 $amountOfIgnoredCells++;
                 continue;
@@ -222,7 +232,10 @@ class UnicodeCleaner {
             if ($isOutCharset) {
                 $affected_rows = $this->updateField($id, $convertedStr);
                 if($affected_rows){
-                    $output[self::OUTPUT_DATA][$id]['text'] = $convertedStr;
+                    $output[$id] = array(
+                        'old' => $field,
+                        'new' => $convertedStr,
+                    );
                     $amountOfConvertedCells += $affected_rows;            
                 } else {
                     $amountOfIgnoredCells++;
@@ -230,10 +243,12 @@ class UnicodeCleaner {
             }
         }
         
-        $reinterpretStats->countIgnored += $amountOfIgnoredCells;
-        $reinterpretStats->countConverted += $amountOfConvertedCells;
+        $reinterpretSettings->reinterpretStats->countIgnored += $amountOfIgnoredCells;
+        $reinterpretSettings->reinterpretStats->countConverted += $amountOfConvertedCells;
 
-        return $output;
+        $reinterpretSettings->data = $reinterpretSettings->data + $output;
+        
+        return null;
     }
     
     private function isOutCharset($str, $outputCharset) {
