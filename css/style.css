@@ -170,3 +170,7 @@ div.paginationjs {
     width: 100%;
     height: 80%;
 }
+
+table#table-main{
+    display: none;
+}

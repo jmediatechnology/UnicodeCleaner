@@ -155,11 +155,14 @@ $(window).ready(function () {
                 $("#sys-message").html(data.message);
                 
                 if(data.hasOwnProperty('data') && !$.isEmptyObject(data.data)){
+                    
+                    $("table#table-main").show();
+                    
                     let htmlContent = '';
                     for (const property in data.data) {
                         htmlContent += '<tr><td>'+ property  +'</td><td>'+ data.data[property].old +'</td><td>'+ data.data[property].new +'</td></tr>';
                     }
-                    $("#table-main").html(htmlContent);                    
+                    $("#table-main tbody").html(htmlContent);                    
                 }
                 
                 $("div#loader").css("display", "none");

@@ -229,7 +229,7 @@ class UnicodeCleaner {
                 continue;
             }
 
-            if ($isOutCharset) {
+            if ($isOutCharset && $reinterpretSettings->mode != 'preview') {
                 $affected_rows = $this->updateField($id, $convertedStr);
                 if($affected_rows){
                     $output[$id] = array(
@@ -240,6 +240,13 @@ class UnicodeCleaner {
                 } else {
                     $amountOfIgnoredCells++;
                 }
+            }
+            
+            if ($isOutCharset && $reinterpretSettings->mode === 'preview') {
+                $output[$id] = array(
+                    'old' => $field,
+                    'new' => $convertedStr,
+                );
             }
         }
         
