@@ -23,14 +23,14 @@ Char test Î©\
 plantaardige oliÃ«n\
 product price: â‚¬ 10,00.\
 pokÃ©mon\
-MAÃS (contains control chars)\
+MAÃS (contains 1 invalid utf8 char)\
 pinda?s\
-MELKPROTEÃNE (contains control chars)\
-weiÃŸ (contains control chars)\
-BÃŠTAŸ (contains control chars)\
-Ã  tout Ã  l''heureŸ (see you soon) (contains control chars)\
-Ă  bientĂ´t (see you soon) (contains control chars)\
-Il est Ã  Paris (he is in Paris) (contains control chars)
+MELKPROTEÃNE (contains 1 invalid utf8 char)\
+weiÃŸ (contains 1 invalid utf8 char)\
+BÃŠTAŸ (contains 1 invalid utf8 char)\
+Ã  tout Ã  l''heureŸ (see you soon) (contains 1 invalid utf8 char)\
+Ă  bientĂ´t (see you soon) (contains 1 invalid utf8 char)\
+Il est Ã  Paris (he is in Paris) (contains 1 invalid utf8 char)
 
  
 ### Why are some characters displayed in such weird way? 
@@ -217,14 +217,14 @@ Char test Ω\
 plantaardige oliën\
 product price: € 10,00.\
 pokémon\
-MAÃS (contains control chars)\
+MAÃS (contains 1 invalid utf8 char)\
 pinda?s\
-MELKPROTEÃNE (contains control chars)\
-weiÃ (contains control chars)\
-BÃŠTA (contains control chars)\
-Ã  tout Ã  l'heure (see you soon) (contains control chars)\
-Ă  bientĂ´t (see you soon) (contains control chars)\
-Il est Ã  Paris (he is in Paris) (contains control chars)
+MELKPROTEÃNE (contains 1 invalid utf8 char)\
+weiÃ (contains 1 invalid utf8 char)\
+BÃŠTA (contains 1 invalid utf8 char)\
+Ã  tout Ã  l'heure (see you soon) (contains 1 invalid utf8 char)\
+Ă  bientĂ´t (see you soon) (contains 1 invalid utf8 char)\
+Il est Ã  Paris (he is in Paris) (contains 1 invalid utf8 char)
 
 
 
