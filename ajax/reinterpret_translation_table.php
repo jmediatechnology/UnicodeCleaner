@@ -163,7 +163,7 @@ try {
     $reinterpretSettings->to = $_POST['encoding_to'];
     $reinterpretSettings->mode = $_POST['mode'];
 
-    $unicodeCleaner->reinterpret($reinterpretSettings, $translation_table);
+    $data = $unicodeCleaner->reinterpret($reinterpretSettings, $translation_table);
     
     $amountOfIgnoredCells = $reinterpretSettings->reinterpretStats->countIgnored;
     $amountOfConvertedCells = $reinterpretSettings->reinterpretStats->countConverted;
@@ -186,7 +186,7 @@ $messageAmountOfConvertedCells = 'Amount of converted cells: ' . $amountOfConver
 $messageAmountOfIgnoredCells = 'Amount of ignored cells: ' . $amountOfIgnoredCells . ' cells. <br>';
 
 $output['message'] = $message . $messageAmountOfConvertedCells . $messageAmountOfIgnoredCells;
-$output['data'] = $reinterpretSettings->data;
+$output['data'] = $data;
 $outputJSON = json_encode($output);
 
 $message = validateJSON($outputJSON, $messageAmountOfConvertedCells, $messageAmountOfIgnoredCells);
