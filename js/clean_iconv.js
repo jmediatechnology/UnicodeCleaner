@@ -12,6 +12,7 @@ $(document).ready(function () {
                 encoding_for_db_connection: $('#encoding_for_db_connection').val().trim(),
                 encoding_from: $('#encoding_from').val().trim(),
                 encoding_to: $('#encoding_to').val().trim(),
+                mode: 'reinterpret',
             },
             beforeSend: function () {
                 $("div#loader").css("display", "block");
@@ -47,7 +48,7 @@ $(document).ready(function () {
     // -------------------------------------------------------------------------
     $('button#preview').on('click', function (e) {
         $.ajax({
-            url: "ajax/preview_iconv.php",
+            url: "ajax/reinterpret_iconv.php",
             type: "POST",
             data: {
                 encoding_for_db_connection: $('#encoding_for_db_connection').val().trim(),

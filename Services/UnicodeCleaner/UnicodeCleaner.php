@@ -49,7 +49,7 @@ class UnicodeCleaner {
         return $this->field;
     }
 
-    public function fetchGarbledFieldValues(&$pagePointer = 1, ReinterpretSettings $reinterpretSettings, $translation_table = array()) {
+    public function fetchGarbledFieldValues($pagePointer = 1, ReinterpretSettings $reinterpretSettings, $translation_table = array()) {
      
         $pageSize = self::PAGING_PAGE_SIZE;
                 
@@ -111,8 +111,6 @@ class UnicodeCleaner {
             $entities[$id] = $field;
         }
         
-        $pagePointer++;
-        
         return $entities;
     }
     
@@ -141,6 +139,7 @@ class UnicodeCleaner {
             $this->iconv($garbledFieldValues, $reinterpretSettings);
         }
         
+        $pagePointer++;
         return $this->reinterpretRecursive($pagePointer, $reinterpretSettings, $translation_table);
     }
 
@@ -172,7 +171,7 @@ class UnicodeCleaner {
                 continue;
             }
 
-            if ($isOutCharset && $reinterpretSettings->mode != 'preview') {
+            if ($isOutCharset && $reinterpretSettings->mode === 'reinterpret') {
                 $affected_rows = $this->updateField($id, $convertedStr);
                 if($affected_rows){
                     $output[$id] = array(
@@ -229,7 +228,7 @@ class UnicodeCleaner {
                 continue;
             }
 
-            if ($isOutCharset && $reinterpretSettings->mode != 'preview') {
+            if ($isOutCharset && $reinterpretSettings->mode === 'reinterpret') {
                 $affected_rows = $this->updateField($id, $convertedStr);
                 if($affected_rows){
                     $output[$id] = array(

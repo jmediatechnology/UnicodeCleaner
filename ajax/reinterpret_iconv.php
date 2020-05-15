@@ -72,6 +72,7 @@ require_once 'Autoloader.php';
 
 use \Services\UnicodeCleaner\UnicodeCleaner;
 use \Entities\ReinterpretStats\ReinterpretStats;
+use \Entities\ReinterpretSettings\ReinterpretSettings;
 
 //==========================================================================================================================
 // Constants
@@ -124,6 +125,8 @@ try {
     }
     $mysqli->set_charset($_POST['encoding_for_db_connection']);
     
+    $reinterpretSettings = new ReinterpretSettings;
+    
 } catch (Exception $exc) {
     header($_SERVER["SERVER_PROTOCOL"]." 422 Unprocessable Entity"); 
     header('Content-Type: application/json');
@@ -142,14 +145,15 @@ try {
     $unicodeCleaner->setFieldPK($ini_array[SECTION_TARGET]['target_column_id']);
     $unicodeCleaner->setField($ini_array[SECTION_TARGET]['target_column_target']);
         
-    $from = $_POST['encoding_from'];
-    $to = $_POST['encoding_to'];
+    $reinterpretSettings->reinterpretStats = new ReinterpretStats;
+    $reinterpretSettings->from = $_POST['encoding_from'];
+    $reinterpretSettings->to = $_POST['encoding_to'];
+    $reinterpretSettings->mode = $_POST['mode'];
     
-    /* @var $reinterpretStats ReinterpretStats */
-    $reinterpretStats = $unicodeCleaner->reinterpret($from, $to);
+    $unicodeCleaner->reinterpret($reinterpretSettings);
     
-    $amountOfIgnoredCells = $reinterpretStats->countIgnored;
-    $amountOfConvertedCells = $reinterpretStats->countConverted;
+    $amountOfIgnoredCells = $reinterpretSettings->reinterpretStats->countIgnored;
+    $amountOfConvertedCells = $reinterpretSettings->reinterpretStats->countConverted;
 
 } catch (Exception $exc) {
     header($_SERVER["SERVER_PROTOCOL"]." 422 Unprocessable Entity"); 
@@ -169,7 +173,16 @@ $messageAmountOfConvertedCells = 'Amount of converted cells: ' . $amountOfConver
 $messageAmountOfIgnoredCells = 'Amount of ignored cells: ' . $amountOfIgnoredCells . ' cells. <br>';
 
 $output['message'] = $message . $messageAmountOfConvertedCells . $messageAmountOfIgnoredCells;
-$outputJSON = json_encode($output);
+$output['data'] = $reinterpretSettings->data;
+
+$phpVersion = PHP_MAJOR_VERSION . PHP_MINOR_VERSION;
+$phpVersion = (int)$phpVersion;
+if($phpVersion < 54){
+    $outputJSON = my_json_encode($output);
+} else {
+    $output = outputArrayCleaner($output);
+    $outputJSON = json_encode($output);
+}
 
 $message = validateJSON($outputJSON, $messageAmountOfConvertedCells, $messageAmountOfIgnoredCells);
 
@@ -250,3 +263,28 @@ function hasGarbledChars($str) {
     return false;
 }
 
+
+/**
+ * Clean non-UTF8 chars for output
+ * 
+ * @link https://stackoverflow.com/a/46305914/1280520
+ * 
+ * @param type $arr
+ * @return type
+ */
+function outputArrayCleaner($arr){
+    array_walk_recursive($arr, function (&$item, $key) { $item = mb_convert_encoding($item, 'UTF-8', 'UTF-8'); });
+    return $arr;
+}
+
+/**
+ * @link https://www.php.net/manual/en/function.json-encode.php#105789
+ * 
+ * @param type $arr
+ * @return type
+ */
+function my_json_encode($arr){
+    //convmap since 0x80 char codes so it takes all multibyte codes (above ASCII 127). So such characters are being "hidden" from normal json_encoding
+    array_walk_recursive($arr, function (&$item, $key) { if (is_string($item)) $item = mb_encode_numericentity($item, array (0x80, 0xffff, 0, 0xffff), 'UTF-8'); });
+    return mb_decode_numericentity(json_encode($arr), array (0x80, 0xffff, 0, 0xffff), 'UTF-8');
+}

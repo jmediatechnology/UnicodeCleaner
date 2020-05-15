@@ -73,6 +73,7 @@ require_once 'Autoloader.php';
 use \Services\UnicodeCleaner\UnicodeCleaner;
 use \Services\UnicodeCleaner\TranslationTableValidator;
 use \Entities\ReinterpretStats\ReinterpretStats;
+use \Entities\ReinterpretSettings\ReinterpretSettings;
 
 //==========================================================================================================================
 // Constants
@@ -137,6 +138,8 @@ try {
     $translationTableValidator->setTTArray($translation_table);
     $translationTableValidator->validateTTArray();
     
+    $reinterpretSettings = new ReinterpretSettings;
+    
 } catch (Exception $exc) {
     header($_SERVER["SERVER_PROTOCOL"]." 422 Unprocessable Entity"); 
     header('Content-Type: application/json');
@@ -155,14 +158,15 @@ try {
     $unicodeCleaner->setFieldPK($ini_array[SECTION_TARGET]['target_column_id']);
     $unicodeCleaner->setField($ini_array[SECTION_TARGET]['target_column_target']);
     
-    $from = $_POST['encoding_from'];
-    $to = $_POST['encoding_to'];
+    $reinterpretSettings->reinterpretStats = new ReinterpretStats;
+    $reinterpretSettings->from = $_POST['encoding_from'];
+    $reinterpretSettings->to = $_POST['encoding_to'];
+    $reinterpretSettings->mode = $_POST['mode'];
+
+    $unicodeCleaner->reinterpret($reinterpretSettings, $translation_table);
     
-    /* @var $reinterpretStats ReinterpretStats */
-    $reinterpretStats = $unicodeCleaner->reinterpret($from, $to, $translation_table);
-    
-    $amountOfIgnoredCells = $reinterpretStats->countIgnored;
-    $amountOfConvertedCells = $reinterpretStats->countConverted;
+    $amountOfIgnoredCells = $reinterpretSettings->reinterpretStats->countIgnored;
+    $amountOfConvertedCells = $reinterpretSettings->reinterpretStats->countConverted;
     
 } catch (Exception $exc) {
     header($_SERVER["SERVER_PROTOCOL"]." 422 Unprocessable Entity"); 
@@ -182,6 +186,7 @@ $messageAmountOfConvertedCells = 'Amount of converted cells: ' . $amountOfConver
 $messageAmountOfIgnoredCells = 'Amount of ignored cells: ' . $amountOfIgnoredCells . ' cells. <br>';
 
 $output['message'] = $message . $messageAmountOfConvertedCells . $messageAmountOfIgnoredCells;
+$output['data'] = $reinterpretSettings->data;
 $outputJSON = json_encode($output);
 
 $message = validateJSON($outputJSON, $messageAmountOfConvertedCells, $messageAmountOfIgnoredCells);
