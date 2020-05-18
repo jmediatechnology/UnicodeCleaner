@@ -44,6 +44,7 @@ $(window).load(function () {
                         username: $("input[name=username]").val().trim(),
                         password: $("input[name=password]").val().trim(),
                         db: $("input[name=db]").val().trim(),
+                        port: $("input[name=port]").val().trim(),
                     },
                     beforeSend: function () {
                         $("div#loader").css("display", "block");
@@ -74,6 +75,7 @@ $(window).load(function () {
                         username: $("input[name=username]").val().trim(),
                         password: $("input[name=password]").val().trim(),
                         db: $("input[name=db]").val().trim(),
+                        port: $("input[name=port]").val().trim(),
                     },
                     beforeSend: function () {
                         $("div#loader").css("display", "block");

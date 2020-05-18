@@ -117,8 +117,9 @@ try {
     $username = $ini_array[SECTION_DB]['username'];
     $password = $ini_array[SECTION_DB]['password'];
     $db = $ini_array[SECTION_DB]['db'];
+    $port = $ini_array[SECTION_DB]['port'];
 
-    $mysqli = new mysqli($host, $username, $password, $db);
+    $mysqli = new mysqli($host, $username, $password, $db, $port);
     $mysqli_connect_error = mysqli_connect_error();
     if($mysqli_connect_error){
         throw new Exception($mysqli_connect_error);

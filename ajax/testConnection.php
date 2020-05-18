@@ -76,8 +76,9 @@ try {
     $username = $_POST['username'];
     $password = $_POST['password'];
     $db = $_POST['db'];
+    $port = $_POST['port'];
 
-    $mysqli = new mysqli($host, $username, $password, $db);
+    $mysqli = new mysqli($host, $username, $password, $db, $port);
     $mysqli_connect_error = mysqli_connect_error();
     if($mysqli_connect_error){
         throw new Exception($mysqli_connect_error);

@@ -66,7 +66,7 @@ require_once 'Autoloader.php';
 //==========================================================================================================================
 
 define('FILENAME', 'config.ini');
-define('SECTION', 'database');
+define('SECTION_DB', 'database');
 
 //==========================================================================================================================
 // Instantiate dependencies
@@ -80,12 +80,13 @@ try {
         throw new Exception('Can not parse ini file. ');
     }
     
-    $host = $ini_array[SECTION]['host'];
-    $username = $ini_array[SECTION]['username'];
-    $password = $ini_array[SECTION]['password'];
-    $db = $ini_array[SECTION]['db'];
+    $host = $ini_array[SECTION_DB]['host'];
+    $username = $ini_array[SECTION_DB]['username'];
+    $password = $ini_array[SECTION_DB]['password'];
+    $db = $ini_array[SECTION_DB]['db'];
+    $port = $ini_array[SECTION_DB]['port'];
 
-    $mysqli = new mysqli($host, $username, $password, 'information_schema');
+    $mysqli = new mysqli($host, $username, $password, 'information_schema', $port);
     $mysqli_connect_error = mysqli_connect_error();
     if($mysqli_connect_error){
         throw new Exception($mysqli_connect_error);
