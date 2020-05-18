@@ -136,9 +136,9 @@ class UnicodeCleaner {
         }
         
         if($translation_table){
-            $this->translateCustom($garbledFieldValues, $reinterpretSettings, $translation_table);
+            $output = $this->translateCustom($garbledFieldValues, $reinterpretSettings, $translation_table);
         } else {
-            $this->iconv($garbledFieldValues, $reinterpretSettings);
+            $output = $this->iconv($garbledFieldValues, $reinterpretSettings);
         }
         
         $pagePointer++;
@@ -158,7 +158,11 @@ class UnicodeCleaner {
         $amountOfConvertedCells = 0;             
         foreach ($garbledFieldValues as $id => $field) {
 
-            $output[$id] = array();
+            $output[$id] = array(
+                'old' => $field,
+                'new' => '',
+                'error' => '',
+            );
 
             try {       
                 $convertedStr = $this->translateByTranslationTable($translation_table, $field);
@@ -177,10 +181,7 @@ class UnicodeCleaner {
             if ($isOutCharset && $reinterpretSettings->mode === 'reinterpret') {
                 $affected_rows = $this->updateField($id, $convertedStr);
                 if($affected_rows){
-                    $output[$id] = array(
-                        'old' => $field,
-                        'new' => $convertedStr,
-                    );
+                    $output[$id]['new'] = $convertedStr;
                     $amountOfConvertedCells += $affected_rows;            
                 } else {
                     $amountOfIgnoredCells++;
@@ -188,17 +189,12 @@ class UnicodeCleaner {
             }
             
             if ($isOutCharset && $reinterpretSettings->mode === 'preview') {
-                $output[$id] = array(
-                    'old' => $field,
-                    'new' => $convertedStr,
-                );
+                $output[$id]['new'] = $convertedStr;
             }
         }
         
         $reinterpretSettings->reinterpretStats->countIgnored += $amountOfIgnoredCells;
         $reinterpretSettings->reinterpretStats->countConverted += $amountOfConvertedCells;
-        
-        //$reinterpretSettings->data = $reinterpretSettings->data + $output;
 
         return $output;
     }
@@ -215,7 +211,11 @@ class UnicodeCleaner {
         $amountOfConvertedCells = 0;             
         foreach ($garbledFieldValues as $id => $field) {
 
-            $output[$id] = array();
+            $output[$id] = array(
+                'old' => $field,
+                'new' => '',
+                'error' => '',
+            );
 
             try {
                 $convertedStr = iconv($reinterpretSettings->from, $reinterpretSettings->to, $field);
@@ -234,10 +234,7 @@ class UnicodeCleaner {
             if ($isOutCharset && $reinterpretSettings->mode === 'reinterpret') {
                 $affected_rows = $this->updateField($id, $convertedStr);
                 if($affected_rows){
-                    $output[$id] = array(
-                        'old' => $field,
-                        'new' => $convertedStr,
-                    );
+                    $output[$id]['new'] = $convertedStr;
                     $amountOfConvertedCells += $affected_rows;            
                 } else {
                     $amountOfIgnoredCells++;
@@ -245,17 +242,12 @@ class UnicodeCleaner {
             }
             
             if ($isOutCharset && $reinterpretSettings->mode === 'preview') {
-                $output[$id] = array(
-                    'old' => $field,
-                    'new' => $convertedStr,
-                );
+                $output[$id]['new'] = $convertedStr;
             }
         }
         
         $reinterpretSettings->reinterpretStats->countIgnored += $amountOfIgnoredCells;
         $reinterpretSettings->reinterpretStats->countConverted += $amountOfConvertedCells;
-
-        //$reinterpretSettings->data = $reinterpretSettings->data + $output;
         
         return $output;
     }
