@@ -204,6 +204,9 @@ class UnicodeCleaner {
         if (!$garbledFieldValues) {
             throw new \Exception('No garbledFieldValues given. ');
         }
+        if (!function_exists('iconv')) {
+            throw new \Exception('The PHP module "iconv" is disabled or not installed on this Server. ');
+        }
         
         $output = array();
         
